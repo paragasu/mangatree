@@ -1,7 +1,21 @@
 var {ToggleButton} = require('sdk/ui/button/toggle');
+var data    = require('sdk/self').data;
 var tabs    = require('sdk/tabs');
-var request = require('sdk/request').Request;
+var Request = require('sdk/request').Request;
 var promise = require('sdk/core/promise');
+var Panel   = require('sdk/panel').Panel;
+
+var panel   = Panel({
+	width: 220,
+	contentURL: data.url('manga.html'),
+	contentScriptFile: data.url('manga.js')
+});
+
+panel.on('show', function(){
+
+	console.log('send port show signal');
+	panel.port.emit(JSON.stringify(updatedList));
+})
 
 let {search, UNSORTED} = require('sdk/places/bookmarks');
 
@@ -80,9 +94,12 @@ var button = ToggleButton({
 
 				promise.all(op).then(function(res){	
 				
-					console.log('updated', updatedList);
+					//console.log('updated', updatedList);
 					button.badge = Object.keys(updatedList).length;
-	
+
+					if(state.checked){
+						panel.show({ position: button});	
+					}
 				})
 			})
 		})	
@@ -113,7 +130,7 @@ var checkUpdate = function(item){
 	
 	return new Promise(function(resolve, reject){
 	
-		request({
+		Request({
 			url: item.next,
 			onComplete: function(response){
 			
