@@ -6,7 +6,7 @@
   "main": "index.js",
   "author": "Jeffry Lunggot",
   "engines": {
-    "firefox": ">=29",
+    "firefox": ">=29.0",
     "fennec": ">=38.0a1"
   },
   "license": "MIT",
