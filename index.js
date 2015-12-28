@@ -4,12 +4,16 @@ var {data, version}= require('sdk/self');
 
 var tabs     = require('sdk/tabs');
 var Request  = require('sdk/request').Request;
-var promise  = require('sdk/core/promise');
+//var Promise  = require('sdk/core/promise');
 var Panel    = require('sdk/panel').Panel;
 var notify   = require('sdk/notifications');
 
+var totalUpdate = 0;
+var updatedList = [];
+
 const mangaList  = {
-	'www.mangahen.com' : /(www\.mangahen\.com)\/(\w+)\/(\d+)\/(\d+)?\/?/i
+	'www.mangahen.com' : /(www\.mangahen\.com)\/(\w+)\/(\d+)\/(\d+)?\/?/i,
+	'www.mangareader.net' : /(www\.mangareader\.net)\/([\w+\-]+)\/(\d+)\/?(\d+)?\/?/i
 }
 
 const ICON = {
@@ -39,7 +43,6 @@ panel.port.on('clicked', function(url){
 	tabs.open(url);
 });
 
-var updatedList = [];
 
 var button = ToggleButton({
 	id: 'manga-link',
@@ -47,74 +50,131 @@ var button = ToggleButton({
 	icon: ICON,
 	
 	onClick: function(state){
-
+		
+		updatedList = [];
 		button.icon = data.url('ajax-loader.gif');
 
-		Object.keys(mangaList).map(function(manga){
+		var mangaSite = Object.keys(mangaList);
+		var mangaBookmarkArr = mangaSite.map(searchBookmark);
 
-			var s = search([{ query: manga }], { sort: 'updated', decending: true });
+		Promise.all(mangaBookmarkArr)
+		.then(function(results){
 
-			s.on('end', function(results){
+			console.log('results ', results);
 
-				// no bookmark found
-				if(results.length === 0){
-					return showNoBookmarkFound();	
-				}
+			var total = 0;
+			var itemArr = [];
 
-				var bookmarks  = results.map(function(res){
+			results.forEach(function(mangaName){
+				total += mangaName.length;	
+			})
 
-					var m = mangaList[manga].exec(res.url);
-					var p = parseInt(m[4]) || 1;
-					var nextPage = p + 1;
+			if(total === 0){
+				button.icon = ICON;
+				return showNoBookmarkFound();				
+			}
+		
+			var itemList = [];
 
-					if(nextPage < 10){
-						nextPage = '0' + nextPage.toString();
-					}
-
-					var nextUrl = ['http:/', m[1], m[2], m[3], nextPage].join('/');
-
-					return {
-						url     : 'http://' + m[0],
-						site	: m[1],
-						name    : m[2],
-						chapter : m[3],
-						page    : m[4] || '01',
-						next    : nextUrl
-					}
-				});			
-
-				var bookmark = bookmarks.filter(latestManga);
-				var op = [];
-
-				updatedList = [];
-
-				bookmark.map(function(item){
-
-					var check = checkUpdate(item).then(function(res){
-
-						if(res != null){
-							updatedList.push(res);
-						}
-					})	
-
-					op.push(check);
+			//array of updated from manga site
+			results.forEach(function(mangaName){
+				mangaName.forEach(function(manga){
+					itemList.push(manga);
 				})
+			})
 
-				promise.all(op).then(function(res){	
+			var itemArr = itemList.map(checkUpdate);
+
+			Promise.all(itemArr)
+			.then(function(items){
 				
-					//console.log('updated', updatedList);
-					button.badge = Object.keys(updatedList).length;
+				console.log('itemArr', items, itemArr, results);
+	
+				items.forEach(function(item){
 
-					if(state.checked){
-						panel.show({ position: button});	
-					}
-					
-					button.icon = ICON;
+					if(item != null){
+
+						console.log('manga ', item);
+
+						totalUpdate++;
+						updatedList.push(item);	
+					}				
 				})
+
+				showUpdates(state);	
 			})
 		})	
 	}
 });
+
+
+var searchBookmark = function(site){
+
+	console.log('search bookmark for ' + site);
+
+	return new Promise(function(resolve, reject){
+			
+		var bookmark = [];	
+		var query    = search([{ query: site }], { sort: 'updated', decending: true });
+
+		console.log('search ' + site + ' bookmark ');
+
+		query.on('end', function(result){
+			
+			if(Object.keys(result).length > 0){
+
+				var bookmarks  = result.map(function(item){
+					return explodeUrl(site, item);
+				});
+
+				bookmark       = bookmarks.filter(latestManga);
+			}
+
+			console.log('search done');
+
+			resolve(bookmark);
+		})
+	})
+}
+
+
+var showUpdates = function(state){
+	//console.log('updated', updatedList);
+	var total = Object.keys(updatedList).length;
+
+	button.badge = total;
+
+	if(state.checked){
+		panel.show({ position: button});	
+	}
+					
+	button.icon = ICON;
+}
+
+
+var explodeUrl = function(site, book){
+
+	console.log('match ', mangaList[site].toString(), book.url);
+
+	var m = mangaList[site].exec(book.url);
+	var p = parseInt(m[4]) || 1;
+	var nextPage = p + 1;
+
+	if(nextPage < 10){
+		nextPage = '0' + nextPage.toString();
+	}
+
+	var nextUrl = ['http:/', m[1], m[2], m[3], nextPage].join('/');
+
+	return {
+		url     : 'http://' + m[0],
+		site	: m[1],
+		name    : m[2],
+		chapter : m[3],
+		page    : m[4] || '01',
+		next    : nextUrl
+	}
+}			
 
 
 var latestManga = function(el, index, arr){
@@ -136,7 +196,7 @@ var checkUpdate = function(item){
 
 	var re = notAvailableList[item.site];
 
-	console.log('check update', item.next);
+	console.log('check update', item.next, re.toString());
 	
 	return new Promise(function(resolve, reject){
 	
@@ -145,13 +205,11 @@ var checkUpdate = function(item){
 			onComplete: function(response){
 			
 				if(response.text.search(re) == -1){
-				
-					//console.log('New update available', item.next);
+					console.log('New update available', item.next);
 					resolve(item);
 
 				}else{
-
-					//console.log('No new update');		
+					console.log('No new update', item.next, response.text.search(re));		
 					resolve(null);
 				}	
 			}
@@ -168,7 +226,7 @@ var showNoBookmarkFound = function(){
 
 	notify.notify({
 		title: 'Manga Tree v' + version,
-		iconURL: './icon-32.png',
+		iconURL: data.url('./icon-32.png'),
 		text: 'No bookmark on ' + Object.keys(mangaList).join(',') + ' found.\n'
 	});	
 }

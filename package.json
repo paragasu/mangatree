@@ -1,12 +1,12 @@
 {
   "title": "Manga Tree",
   "name": "mangatree",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Bookmark manga chapter and notify when update available",
   "main": "index.js",
   "author": "Jeffry Lunggot",
   "engines": {
-    "firefox": ">=38.0a1",
+    "firefox": ">=29",
     "fennec": ">=38.0a1"
   },
   "license": "MIT",
