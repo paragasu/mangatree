@@ -1,12 +1,28 @@
 var {ToggleButton} = require('sdk/ui/button/toggle');
-var data    = require('sdk/self').data;
-var tabs    = require('sdk/tabs');
-var Request = require('sdk/request').Request;
-var promise = require('sdk/core/promise');
-var Panel   = require('sdk/panel').Panel;
+let {search} = require('sdk/places/bookmarks');
+var data     = require('sdk/self').data;
+var tabs     = require('sdk/tabs');
+var Request  = require('sdk/request').Request;
+var promise  = require('sdk/core/promise');
+var Panel    = require('sdk/panel').Panel;
+
+const mangaList  = {
+	'www.mangahen.com' : /(www\.mangahen\.com)\/(\w+)\/(\d+)\/(\d+)?\/?/i
+}
+
+const ICON = {
+	'16': data.url('icon-16.png'),
+	'32': data.url('icon-32.png')
+}
+
+notAvailableList = {
+	'www.mangahen.com'    : /not available yet/i,
+	'www.mangareader.net' : /not published yet/i
+}
+
 
 var panel   = Panel({
-	width: 250,
+	width: 280,
 	contentURL: data.url('manga.html'),
 	contentScriptFile: data.url('manga.js')
 });
@@ -24,36 +40,17 @@ panel.port.on('clicked', function(url){
 	tabs.open(url);
 });
 
-
-let {search, UNSORTED} = require('sdk/places/bookmarks');
-
-const mangaList  = {
-	'www.mangahen.com' : /(www\.mangahen\.com)\/(\w+)\/(\d+)\/(\d+)?\/?/i
-}
-
-const imageList = {
-	'www.mangahen.com'    : /www\.mangahen\.com\/wp-content\/manga\/\d+\/\d+\/\d+\.jpg/ig,
-	'www.mangareader.net' : /i\d+\.mangareader\.net\/[a-z\-]+\/\d+\/[a-z\-_0-9]+\.jpg/ig	
-}
-
-notAvailableList = {
-	'www.mangahen.com'    : /not available yet/i,
-	'www.mangareader.net' : /not published yet/i
-}
-
-
 var updatedList = [];
 
 var button = ToggleButton({
 	id: 'manga-link',
 	label: 'Manga Tree',
-	icon: {
-		'16': './icon-16.png',
-		'32': './icon-32.png'
-	},
+	icon: ICON,
 	
 	onClick: function(state){
-	
+
+		button.icon = data.url('ajax-loader.gif');
+
 		Object.keys(mangaList).map(function(manga){
 
 			var s = search([{ query: manga }], { sort: 'updated', decending: true });
@@ -107,6 +104,8 @@ var button = ToggleButton({
 					if(state.checked){
 						panel.show({ position: button});	
 					}
+					
+					button.icon = ICON;
 				})
 			})
 		})	
