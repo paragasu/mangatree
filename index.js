@@ -6,7 +6,7 @@ var promise = require('sdk/core/promise');
 var Panel   = require('sdk/panel').Panel;
 
 var panel   = Panel({
-	width: 220,
+	width: 250,
 	contentURL: data.url('manga.html'),
 	contentScriptFile: data.url('manga.js')
 });
@@ -14,8 +14,16 @@ var panel   = Panel({
 panel.on('show', function(){
 
 	console.log('send port show signal');
-	panel.port.emit(JSON.stringify(updatedList));
+	panel.port.emit('show', JSON.stringify(updatedList));
 })
+
+panel.port.on('clicked', function(url){
+
+	console.log('link clicked ', url);
+
+	tabs.open(url);
+});
+
 
 let {search, UNSORTED} = require('sdk/places/bookmarks');
 
@@ -41,8 +49,7 @@ var button = ToggleButton({
 	label: 'Manga Tree',
 	icon: {
 		'16': './icon-16.png',
-		'32': './icon-32.png',
-		'64': './icon-64.png'
+		'32': './icon-32.png'
 	},
 	
 	onClick: function(state){
@@ -66,7 +73,7 @@ var button = ToggleButton({
 					var nextUrl = ['http:/', m[1], m[2], m[3], nextPage].join('/');
 
 					return {
-						url     : m[0],
+						url     : 'http://' + m[0],
 						site	: m[1],
 						name    : m[2],
 						chapter : m[3],
@@ -136,12 +143,12 @@ var checkUpdate = function(item){
 			
 				if(response.text.search(re) == -1){
 				
-					console.log('New update available', item.next);
+					//console.log('New update available', item.next);
 					resolve(item);
 
 				}else{
 
-					console.log('No new update');		
+					//console.log('No new update');		
 					resolve(null);
 				}	
 			}
