@@ -1,6 +1,6 @@
 function createList(item){
 
-	var title = item.name.replace(/_/g, ' ') + ' ' + item.chapter;
+	var title = item.name.replace(/(_|\-)+/g, ' ') + ' ' + item.chapter;
 
 	var li    = document.createElement('li');	
 	var title = document.createTextNode(title);
