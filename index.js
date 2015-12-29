@@ -60,7 +60,7 @@ var button = ToggleButton({
 		Promise.all(mangaBookmarkArr)
 		.then(function(results){
 
-			console.log('results ', results);
+			//console.log('results ', results);
 
 			var total = 0;
 			var itemArr = [];
@@ -88,7 +88,7 @@ var button = ToggleButton({
 			Promise.all(itemArr)
 			.then(function(items){
 				
-				console.log('itemArr', items, itemArr, results);
+				//console.log('itemArr', items, itemArr, results);
 	
 				items.forEach(function(item){
 
@@ -110,14 +110,14 @@ var button = ToggleButton({
 
 var searchBookmark = function(site){
 
-	console.log('search bookmark for ' + site);
+	//console.log('search bookmark for ' + site);
 
 	return new Promise(function(resolve, reject){
 			
 		var bookmark = [];	
 		var query    = search([{ query: site }], { sort: 'updated', decending: true });
 
-		console.log('search ' + site + ' bookmark ');
+		//console.log('search ' + site + ' bookmark ');
 
 		query.on('end', function(result){
 			
@@ -130,7 +130,7 @@ var searchBookmark = function(site){
 				bookmark       = bookmarks.filter(latestManga);
 			}
 
-			console.log('search done');
+			//console.log('search done');
 
 			resolve(bookmark);
 		})
@@ -154,7 +154,7 @@ var showUpdates = function(state){
 
 var explodeUrl = function(site, book){
 
-	console.log('match ', mangaList[site].toString(), book.url);
+	//console.log('match ', mangaList[site].toString(), book.url);
 
 	var m = mangaList[site].exec(book.url);
 

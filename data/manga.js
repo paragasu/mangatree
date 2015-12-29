@@ -1,4 +1,4 @@
-function createList(item){
+var createList = function(item){
 
 	var title = item.name.replace(/(_|\-)+/g, ' ') + ' ' + item.chapter;
 
@@ -18,6 +18,17 @@ function createList(item){
 }
 
 
+var sortByName = function(a, b){
+
+	console.log('sort', a.name, b.name);
+
+	if(a.name.toLowerCase() < b.name.toLowerCase()) return -1 ;
+	if(a.name.toLowerCase() > b.name.toLowerCase()) return  1 ;
+
+	return 0;
+}
+
+
 self.port.on('show', function(message){
 
 	var data = JSON.parse(message);
@@ -30,8 +41,10 @@ self.port.on('show', function(message){
 	while(node.firstChild){
 		node.removeChild(node.firstChild);
 	}
-	
-	data.map(function(item){
+
+	data
+	.sort(sortByName)
+	.map(function(item){
 		createList(item);
 	});	
 });
