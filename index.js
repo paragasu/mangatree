@@ -190,7 +190,11 @@ var latestManga = function(el, index, arr){
 	for(var i=0, sz = Object.keys(arr).length; i < sz; i++){
 
 		if(el.site != arr[i].site) return true;
-		if(el.name != arr[i].name) return true;
+
+		//check if manga name equal
+		var currentManga = el.name.toLowerCase().replace(/(_|\-)/, ' ');
+		var indexManga   = arr[i].name.toLowerCase().replace(/(_|\-)/, ' ');
+		if(currentManga != indexManga) return true;
 
 		if(parseInt(el.chapter) < parseInt(arr[i].chapter)) return false;
 		if(parseInt(el.page)    < parseInt(arr[i].page))    return false;
