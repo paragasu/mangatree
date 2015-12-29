@@ -157,6 +157,11 @@ var explodeUrl = function(site, book){
 	console.log('match ', mangaList[site].toString(), book.url);
 
 	var m = mangaList[site].exec(book.url);
+
+	if(m == null){
+		return null;
+	}	
+
 	var p = parseInt(m[4]) || 1;
 	var nextPage = p + 1;
 
@@ -178,6 +183,9 @@ var explodeUrl = function(site, book){
 
 
 var latestManga = function(el, index, arr){
+
+	// remove null item
+	if(el == null) return false;
 
 	for(var i=0, sz = Object.keys(arr).length; i < sz; i++){
 
