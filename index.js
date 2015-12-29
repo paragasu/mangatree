@@ -187,8 +187,11 @@ var latestManga = function(el, index, arr){
 	// remove null item
 	if(el == null) return false;
 
+	console.log('latest manga', el, arr);
+
 	for(var i=0, sz = Object.keys(arr).length; i < sz; i++){
 
+		if(arr[i] == null) continue;
 		if(el.site != arr[i].site) return true;
 
 		//check if manga name equal
