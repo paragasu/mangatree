@@ -44,8 +44,10 @@ Please drop me a message.
 ## Contribute
 
 ```
-$git clone https://github.com/paragasu/mangatree.git
 #npm install -g jpm
+
+$git clone https://github.com/paragasu/mangatree.git
+$cd mangatree
 $jpm run
 
 ```
