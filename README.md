@@ -2,6 +2,8 @@
 
 Firefox add-on to check if the bookmarked manga has new update.
 
+![Manga Tree screenshot](https://raw.githubusercontent.com/paragasu/mangatree/master/data/2015-12-28-142748_1920x1080_scrot.png)
+
 ## Introduction
 Some of the nice online manga like mangatown.com do not have a very nice way to show updates. 
 And some, display friendly enough for me to go checkout everyday because the updates are listed by date.
