@@ -4,7 +4,6 @@ var {data, version}= require('sdk/self');
 
 var tabs     = require('sdk/tabs');
 var Request  = require('sdk/request').Request;
-//var Promise  = require('sdk/core/promise');
 var Panel    = require('sdk/panel').Panel;
 var notify   = require('sdk/notifications');
 
@@ -13,7 +12,9 @@ var updatedList = [];
 
 const mangaList  = {
 	'www.mangahen.com' : /(www\.mangahen\.com)\/(\w+)\/(\d+)\/(\d+)?\/?/i,
-	'www.mangareader.net' : /(www\.mangareader\.net)\/([\w+\-]+)\/(\d+)\/?(\d+)?\/?/i
+	'www.mangareader.net' : /(www\.mangareader\.net)\/([\w+\-]+)\/(\d+)\/?(\d+)?\/?/i,
+	'www.mangahere.co' : /(www\.mangahere\.co)\/manga\/(\w+)\/c(\d+)\/(\d+)?\/?/i,
+	'www.mangatown.com' : /(www\.mangatown\.com)\/manga\/(\w+)\/c([\d\.]+)\/(\d+)?\/?/
 }
 
 const ICON = {
@@ -23,7 +24,9 @@ const ICON = {
 
 notAvailableList = {
 	'www.mangahen.com'    : /(raw|not available yet)+/i,
-	'www.mangareader.net' : /not published yet/i
+	'www.mangareader.net' : /not published yet/i,
+	'www.mangahere.co'    : /not available yet/i,
+	'www.mangatown.com'   : /not available yet/i
 }
 
 
@@ -152,34 +155,35 @@ var showUpdates = function(state){
 }
 
 
-var explodeUrl = function(site, book){
+var explodeUrl = function(site, bookmark){
 
 	//console.log('match ', mangaList[site].toString(), book.url);
+	var m = mangaList[site].exec(bookmark.url);
 
-	var m = mangaList[site].exec(book.url);
-
-	if(m == null){
-		return null;
-	}	
-
-	var p = parseInt(m[4]) || 1;
-	var nextPage = p + 1;
-
-	if(nextPage < 10){
-		nextPage = '0' + nextPage.toString();
-	}
-
-	var nextUrl = ['http:/', m[1], m[2], m[3], nextPage].join('/');
+	if(m == null) return null;
 
 	return {
 		url     : 'http://' + m[0],
 		site	: m[1],
 		name    : m[2],
 		chapter : m[3],
-		page    : m[4] || '01',
-		next    : nextUrl
+		page    : m[4] || 1,
+		next    : makeNextUrl(site, bookmark.url)
 	}
-}			
+}	
+
+
+var makeNextUrl = function(site, url){
+
+	var re  = mangaList[site];
+
+	return url.replace(re, function(match, site, name, chapter, page, offset, original){
+
+		//TODO: Fix the issue when the page exist
+		return match.replace(page, parseInt(page || 1) + 1); 
+	});
+}
+
 
 
 var latestManga = function(el, index, arr){
@@ -192,15 +196,22 @@ var latestManga = function(el, index, arr){
 	for(var i=0, sz = Object.keys(arr).length; i < sz; i++){
 
 		if(arr[i] == null) continue;
-		if(el.site != arr[i].site) return true;
+		if(el.site.toLowerCase() != arr[i].site.toLowerCase()) continue;
 
 		//check if manga name equal
 		var currentManga = el.name.toLowerCase().replace(/(_|\-)/, ' ');
 		var indexManga   = arr[i].name.toLowerCase().replace(/(_|\-)/, ' ');
-		if(currentManga != indexManga) return true;
 
-		if(parseInt(el.chapter) < parseInt(arr[i].chapter)) return false;
-		if(parseInt(el.page)    < parseInt(arr[i].page))    return false;
+		console.log('compare', currentManga, indexManga);
+
+		if(currentManga == indexManga){
+
+			//there is another more recent bookmarked chapter 
+			if(parseInt(el.chapter) < parseInt(arr[i].chapter)) return false;
+			
+			//there is another more recent page bookmarked 
+			if(parseInt(el.page)    < parseInt(arr[i].page))    return false;
+		}
 	}
 
 	return true;
@@ -242,6 +253,6 @@ var showNoBookmarkFound = function(){
 	notify.notify({
 		title: 'Manga Tree v' + version,
 		iconURL: data.url('./icon-32.png'),
-		text: 'No bookmark on ' + Object.keys(mangaList).join(',') + ' found.\n'
+		text: 'No bookmark on ' + Object.keys(mangaList).join(',\n') + ' found.\n'
 	});	
 }
