@@ -26,19 +26,19 @@ Hence manga tree is Mango Tree.
 
 
 ## Supported manga
-[x] mangahen.com
-[x] mangareader.net
-[x] mangatown.com
-[x] mangahere.co
-[ ] mangafox.com
+- [x] mangahen.com
+- [x] mangareader.net
+- [x] mangatown.com
+- [x] mangahere.co
+- [ ] mangafox.com
 
 If you find any interesting mangasite and you wish Manga Tree to support it.
 Please drop me a message.
 
 
 ## Todo
-[ ] Cache result on offline
-[ ] Automatically check status every 1 hours or so
+- [ ] Cache result on offline
+- [ ] Automatically check status every 1 hours or so
 
 
 ## Contribute
