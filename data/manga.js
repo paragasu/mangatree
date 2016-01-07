@@ -33,8 +33,7 @@ self.port.on('show', function(message){
 
 	var data = JSON.parse(message);
 
-	console.log('received', data);
-
+	//console.log('received', data);
 	//reset
 	var node = document.getElementById("main");	
 		

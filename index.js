@@ -1,6 +1,7 @@
-var {ToggleButton} = require('sdk/ui/button/toggle');
-let {search}       = require('sdk/places/bookmarks');
-var {data, version}= require('sdk/self');
+var ToggleButton = require('sdk/ui/button/toggle').ToggleButton;
+var search       = require('sdk/places/bookmarks').Search;
+var data         = require('sdk/self').data;
+var version      = require('sdk/self').version;
 
 var tabs     = require('sdk/tabs');
 var Request  = require('sdk/request').Request;
@@ -16,19 +17,19 @@ const mangaList  = {
 	'www.mangahere.co' : /(www\.mangahere\.co)\/manga\/(\w+)\/c(\d+)\/(\d+)?\/?/i,
 	'www.mangatown.com' : /(www\.mangatown\.com)\/manga\/(\w+)\/c([\d+\.]+)\/(\d+)?\/?/,
 	'mangafox.me': /(mangafox\.me)\/manga\/(\w+)\/v([\d+\.]+)\/c(\d+)?\/?/
-}
+};
 
 const ICON = {
 	'16': data.url('icon-16.png'),
 	'32': data.url('icon-32.png')
-}
+};
 
-notAvailableList = {
+var notAvailableList = {
 	'www.mangahen.com'    : /(raw|not available yet)+/i,
 	'www.mangareader.net' : /not published yet/i,
 	'www.mangahere.co'    : /not available yet/i,
 	'www.mangatown.com'   : /not available yet/i
-}
+};
 
 
 var panel   = Panel({
@@ -38,12 +39,12 @@ var panel   = Panel({
 });
 
 panel.on('show', function(){
-	console.log('send port show signal');
+	//console.log('send port show signal');
 	panel.port.emit('show', JSON.stringify(updatedList));
-})
+});
 
 panel.port.on('clicked', function(url){
-	console.log('link clicked ', url);
+	//console.log('link clicked ', url);
 	tabs.open(url);
 });
 
@@ -71,7 +72,7 @@ var button = ToggleButton({
 
 			results.forEach(function(mangaName){
 				total += mangaName.length;	
-			})
+			});
 
 			if(total === 0){
 				button.icon = ICON;
@@ -84,10 +85,10 @@ var button = ToggleButton({
 			results.forEach(function(mangaName){
 				mangaName.forEach(function(manga){
 					itemList.push(manga);
-				})
-			})
+				});
+			});
 
-			var itemArr = itemList.map(checkUpdate);
+			itemArr = itemList.map(checkUpdate);
 
 			Promise.all(itemArr)
 			.then(function(items){
@@ -96,18 +97,18 @@ var button = ToggleButton({
 	
 				items.forEach(function(item){
 
-					if(item != null){
+					if(item !== null){
 
-						console.log('manga ', item);
+						//console.log('manga ', item);
 
 						totalUpdate++;
 						updatedList.push(item);	
 					}				
-				})
+				});
 
 				showUpdates(state);	
-			})
-		})	
+			});
+		});	
 	}
 });
 
@@ -137,9 +138,9 @@ var searchBookmark = function(site){
 			//console.log('search done');
 
 			resolve(bookmark);
-		})
-	})
-}
+		});
+	});
+};
 
 
 var showUpdates = function(state){
@@ -153,7 +154,7 @@ var showUpdates = function(state){
 	}
 					
 	button.icon = ICON;
-}
+};
 
 
 var explodeUrl = function(site, bookmark){
@@ -161,7 +162,7 @@ var explodeUrl = function(site, bookmark){
 	//console.log('match ', mangaList[site].toString(), book.url);
 	var m = mangaList[site].exec(bookmark.url);
 
-	if(m == null) return null;
+	if(m === null) return null;
 
 	return {
 		url     : 'http://' + m[0],
@@ -170,8 +171,8 @@ var explodeUrl = function(site, bookmark){
 		chapter : m[3],
 		page    : m[4] || 1,
 		next    : makeNextUrl(site, bookmark.url)
-	}
-}	
+	};
+};
 
 
 var makeNextUrl = function(site, url){
@@ -183,20 +184,19 @@ var makeNextUrl = function(site, url){
 		//TODO: Fix the issue when the page exist
 		return match.replace(page, parseInt(page || 1) + 1); 
 	});
-}
-
+};
 
 
 var latestManga = function(el, index, arr){
 
 	// remove null item
-	if(el == null) return false;
+	if(el === null) return false;
 
 	//console.log('latest manga', el, arr);
 
 	for(var i=0, sz = Object.keys(arr).length; i < sz; i++){
 
-		if(arr[i] == null) continue;
+		if(arr[i] === null) continue;
 		//if(el.site.toLowerCase() != arr[i].site.toLowerCase()) continue;
 
 		//check if manga name equal
@@ -216,8 +216,7 @@ var latestManga = function(el, index, arr){
 	}
 
 	return true;
-}
-
+};
 
 var checkUpdate = function(item){
 
@@ -232,18 +231,18 @@ var checkUpdate = function(item){
 			onComplete: function(response){
 			
 				if(response.text.search(re) == -1){
-					console.log('New update available', item.next);
+					//console.log('New update available', item.next);
 					resolve(item);
 
 				}else{
-					console.log('No new update', item.next, response.text.search(re));		
+					//console.log('No new update', item.next, response.text.search(re));		
 					resolve(null);
 				}	
 			}
 
 		}).get();
-	})
-}
+	});
+};
 
 
 var showNoBookmarkFound = function(){
@@ -256,4 +255,4 @@ var showNoBookmarkFound = function(){
 		iconURL: data.url('./icon-32.png'),
 		text: 'No bookmark on ' + Object.keys(mangaList).join(',\n') + ' found.\n'
 	});	
-}
+};
