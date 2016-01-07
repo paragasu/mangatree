@@ -14,7 +14,8 @@ const mangaList  = {
 	'www.mangahen.com' : /(www\.mangahen\.com)\/(\w+)\/(\d+)\/(\d+)?\/?/i,
 	'www.mangareader.net' : /(www\.mangareader\.net)\/([\w+\-]+)\/(\d+)\/?(\d+)?\/?/i,
 	'www.mangahere.co' : /(www\.mangahere\.co)\/manga\/(\w+)\/c(\d+)\/(\d+)?\/?/i,
-	'www.mangatown.com' : /(www\.mangatown\.com)\/manga\/(\w+)\/c([\d\.]+)\/(\d+)?\/?/
+	'www.mangatown.com' : /(www\.mangatown\.com)\/manga\/(\w+)\/c([\d+\.]+)\/(\d+)?\/?/,
+	'mangafox.me': /(mangafox\.me)\/manga\/(\w+)\/v([\d+\.]+)\/c(\d+)?\/?/
 }
 
 const ICON = {
@@ -130,7 +131,7 @@ var searchBookmark = function(site){
 					return explodeUrl(site, item);
 				});
 
-				bookmark       = bookmarks.filter(latestManga);
+				bookmark = bookmarks.filter(latestManga);
 			}
 
 			//console.log('search done');
@@ -191,18 +192,18 @@ var latestManga = function(el, index, arr){
 	// remove null item
 	if(el == null) return false;
 
-	console.log('latest manga', el, arr);
+	//console.log('latest manga', el, arr);
 
 	for(var i=0, sz = Object.keys(arr).length; i < sz; i++){
 
 		if(arr[i] == null) continue;
-		if(el.site.toLowerCase() != arr[i].site.toLowerCase()) continue;
+		//if(el.site.toLowerCase() != arr[i].site.toLowerCase()) continue;
 
 		//check if manga name equal
 		var currentManga = el.name.toLowerCase().replace(/(_|\-)/, ' ');
 		var indexManga   = arr[i].name.toLowerCase().replace(/(_|\-)/, ' ');
 
-		console.log('compare', currentManga, indexManga);
+		//console.log('compare', currentManga, indexManga);
 
 		if(currentManga == indexManga){
 
@@ -222,7 +223,7 @@ var checkUpdate = function(item){
 
 	var re = notAvailableList[item.site];
 
-	console.log('check update', item.next, re.toString());
+	//console.log('check update', item.next, re.toString());
 	
 	return new Promise(function(resolve, reject){
 	
