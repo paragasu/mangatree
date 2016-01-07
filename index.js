@@ -1,7 +1,6 @@
-var ToggleButton = require('sdk/ui/button/toggle').ToggleButton;
-var search       = require('sdk/places/bookmarks').Search;
-var data         = require('sdk/self').data;
-var version      = require('sdk/self').version;
+var {ToggleButton}  = require('sdk/ui/button/toggle');
+var {search}        = require('sdk/places/bookmarks');
+var {data, version} = require('sdk/self');
 
 var tabs     = require('sdk/tabs');
 var Request  = require('sdk/request').Request;
@@ -11,18 +10,19 @@ var notify   = require('sdk/notifications');
 var totalUpdate = 0;
 var updatedList = [];
 
-const mangaList  = {
-	'www.mangahen.com' : /(www\.mangahen\.com)\/(\w+)\/(\d+)\/(\d+)?\/?/i,
-	'www.mangareader.net' : /(www\.mangareader\.net)\/([\w+\-]+)\/(\d+)\/?(\d+)?\/?/i,
-	'www.mangahere.co' : /(www\.mangahere\.co)\/manga\/(\w+)\/c(\d+)\/(\d+)?\/?/i,
-	'www.mangatown.com' : /(www\.mangatown\.com)\/manga\/(\w+)\/c([\d+\.]+)\/(\d+)?\/?/,
-	'mangafox.me': /(mangafox\.me)\/manga\/(\w+)\/v([\d+\.]+)\/c(\d+)?\/?/
-};
-
 const ICON = {
 	'16': data.url('icon-16.png'),
 	'32': data.url('icon-32.png')
 };
+
+
+const mangaList  = {
+	'www.mangahen.com' : /(www\.mangahen\.com)\/(\w+)\/(\d+)\/(\d+)?\/?/i,
+	'www.mangareader.net' : /(www\.mangareader\.net)\/([\w+\-]+)\/(\d+)\/?(\d+)?\/?/i,
+	'www.mangahere.co' : /(www\.mangahere\.co)\/manga\/(\w+)\/c(\d+)\/(\d+)?\/?/i,
+	'www.mangatown.com' : /(www\.mangatown\.com)\/manga\/(\w+)\/c([\d+\.]+)\/(\d+)?\/?/
+};
+
 
 var notAvailableList = {
 	'www.mangahen.com'    : /(raw|not available yet)+/i,
@@ -135,7 +135,7 @@ var searchBookmark = function(site){
 				bookmark = bookmarks.filter(latestManga);
 			}
 
-			//console.log('search done');
+			//console.log('search done found ', Object.keys(result).length);
 
 			resolve(bookmark);
 		});
@@ -189,7 +189,7 @@ var makeNextUrl = function(site, url){
 
 var latestManga = function(el, index, arr){
 
-	// remove null item
+	//remove null item
 	if(el === null) return false;
 
 	//console.log('latest manga', el, arr);
