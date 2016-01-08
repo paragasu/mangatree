@@ -65,7 +65,13 @@ var button = ToggleButton({
 		Promise.all(mangaBookmarkArr)
 		.then(function(results){
 
-			//console.log('results ', results);
+			console.log('results ', results);
+			//TODO: map reduce to combine all site results
+			var bookmarkArr = results.reduce(function(previousValue, currenValue, index, arr){
+
+				if(curentValue.length > 0){
+				}
+			});
 
 			var total = 0;
 			var itemArr = [];
@@ -190,10 +196,9 @@ var makeNextUrl = function(site, url){
 var latestManga = function(el, index, arr){
 
 	//remove null item
-	if(el === null) return false;
+	if(el == null) return false;
 
 	//console.log('latest manga', el, arr);
-
 	for(var i=0, sz = Object.keys(arr).length; i < sz; i++){
 
 		if(arr[i] === null) continue;
@@ -203,13 +208,18 @@ var latestManga = function(el, index, arr){
 		var currentManga = el.name.toLowerCase().replace(/(_|\-)/, ' ');
 		var indexManga   = arr[i].name.toLowerCase().replace(/(_|\-)/, ' ');
 
-		//console.log('compare', currentManga, indexManga);
+		console.log('item', el);
+		console.log('current index', arr[i]);
+		console.log('list', arr);
+		console.log('compare', currentManga, indexManga, (currentManga == indexManga));
 
 		if(currentManga == indexManga){
 
+			console.log('chapter', parseInt(el.chapter), parseInt(arr[i].chapter), parseInt(el.chapter) < parseInt(arr[i].chapter));
 			//there is another more recent bookmarked chapter 
 			if(parseInt(el.chapter) < parseInt(arr[i].chapter)) return false;
 			
+			console.log('chapter', parseInt(el.page), parseInt(arr[i].page), parseInt(el.page) < parseInt(arr[i].page));
 			//there is another more recent page bookmarked 
 			if(parseInt(el.page)    < parseInt(arr[i].page))    return false;
 		}
@@ -223,7 +233,6 @@ var checkUpdate = function(item){
 	var re = notAvailableList[item.site];
 
 	//console.log('check update', item.next, re.toString());
-	
 	return new Promise(function(resolve, reject){
 	
 		Request({
