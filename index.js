@@ -65,48 +65,30 @@ var button = ToggleButton({
 		Promise.all(mangaBookmarkArr)
 		.then(function(results){
 
-			console.log('results ', results);
-			//TODO: map reduce to combine all site results
-			var bookmarkArr = results.reduce(function(previousValue, currenValue, index, arr){
+			var bookmarkArr = results.reduce(function(previousValue, currentValue, index, arr){
 
-				if(curentValue.length > 0){
-				}
+				if(previousValue == null) previousValue = [];
+				return (currentValue  == null) ? previousValue : previousValue.concat(currentValue);
 			});
 
-			var total = 0;
-			var itemArr = [];
-
-			results.forEach(function(mangaName){
-				total += mangaName.length;	
-			});
+			var total = bookmarkArr.length;
 
 			if(total === 0){
 				button.icon = ICON;
 				return showNoBookmarkFound();				
 			}
-		
-			var itemList = [];
+	
+			var itemArr = bookmarkArr.filter(latestManga);
 
-			//array of updated from manga site
-			results.forEach(function(mangaName){
-				mangaName.forEach(function(manga){
-					itemList.push(manga);
-				});
-			});
-
-			itemArr = itemList.map(checkUpdate);
-
-			Promise.all(itemArr)
+			Promise.all(itemArr.map(checkUpdate))
 			.then(function(items){
 				
 				//console.log('itemArr', items, itemArr, results);
-	
 				items.forEach(function(item){
 
 					if(item !== null){
 
 						//console.log('manga ', item);
-
 						totalUpdate++;
 						updatedList.push(item);	
 					}				
@@ -129,7 +111,6 @@ var searchBookmark = function(site){
 		var query    = search([{ query: site }], { sort: 'updated', decending: true });
 
 		//console.log('search ' + site + ' bookmark ');
-
 		query.on('end', function(result){
 			
 			if(Object.keys(result).length > 0){
@@ -137,13 +118,10 @@ var searchBookmark = function(site){
 				var bookmarks  = result.map(function(item){
 					return explodeUrl(site, item);
 				});
-
-				bookmark = bookmarks.filter(latestManga);
 			}
 
 			//console.log('search done found ', Object.keys(result).length);
-
-			resolve(bookmark);
+			resolve(bookmarks);
 		});
 	});
 };
@@ -192,7 +170,6 @@ var makeNextUrl = function(site, url){
 	});
 };
 
-
 var latestManga = function(el, index, arr){
 
 	//remove null item
@@ -208,18 +185,18 @@ var latestManga = function(el, index, arr){
 		var currentManga = el.name.toLowerCase().replace(/(_|\-)/, ' ');
 		var indexManga   = arr[i].name.toLowerCase().replace(/(_|\-)/, ' ');
 
-		console.log('item', el);
-		console.log('current index', arr[i]);
-		console.log('list', arr);
-		console.log('compare', currentManga, indexManga, (currentManga == indexManga));
+		//console.log('item', el);
+		//console.log('current index', arr[i]);
+		//console.log('list', arr);
+		//console.log('compare', currentManga, indexManga, (currentManga == indexManga));
 
 		if(currentManga == indexManga){
 
-			console.log('chapter', parseInt(el.chapter), parseInt(arr[i].chapter), parseInt(el.chapter) < parseInt(arr[i].chapter));
+			//console.log('chapter', parseInt(el.chapter), parseInt(arr[i].chapter), parseInt(el.chapter) < parseInt(arr[i].chapter));
 			//there is another more recent bookmarked chapter 
 			if(parseInt(el.chapter) < parseInt(arr[i].chapter)) return false;
 			
-			console.log('chapter', parseInt(el.page), parseInt(arr[i].page), parseInt(el.page) < parseInt(arr[i].page));
+			//console.log('chapter', parseInt(el.page), parseInt(arr[i].page), parseInt(el.page) < parseInt(arr[i].page));
 			//there is another more recent page bookmarked 
 			if(parseInt(el.page)    < parseInt(arr[i].page))    return false;
 		}

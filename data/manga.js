@@ -20,8 +20,7 @@ var createList = function(item){
 
 var sortByName = function(a, b){
 
-	console.log('sort', a.name, b.name);
-
+	//console.log('sort', a.name, b.name);
 	if(a.name.toLowerCase() < b.name.toLowerCase()) return -1 ;
 	if(a.name.toLowerCase() > b.name.toLowerCase()) return  1 ;
 
